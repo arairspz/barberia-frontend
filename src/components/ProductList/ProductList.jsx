@@ -8,7 +8,12 @@ const ProductList = () => {
     useEffect(() => {
         const fetchProductos = async () => {
             try {
-                const response = await fetch(URL);
+                const response = await fetch(URL,{
+                    method: 'GET', // o POST, PUT, etc.
+                    headers: {'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true' // Este es el pase VIP para saltar la advertencia
+                    }
+                });
                 if (!response.ok) {
                     throw new Error("Error al cargar los productos");
                 }
