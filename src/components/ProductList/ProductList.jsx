@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 const ProductList = () => {
     const [productos, setProductos] = useState([]);
     const [error, setError] = useState(null);
-    const URL = "http://localhost:4000/productos"; 
+    const URL = "https://voicing-bobtail-bankbook.ngrok-free.dev"; 
 
     useEffect(() => {
         const fetchProductos = async () => {
