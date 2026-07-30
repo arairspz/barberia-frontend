@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 
 const ProductList = () => {
+    const URL_PRODUCCION = "https://voicing-bobtail-bankbook.ngrok-free.dev/productos"
+    const URL_PRUEBA = 'http://localhost:4000/productos'
     const [productos, setProductos] = useState([]);
-    const [error, setError] = useState(null);
-    const URL = "https://voicing-bobtail-bankbook.ngrok-free.dev/productos"; 
+    const [error, setError] = useState(null);   
+    const [orden, setOrden] = useState("Relevantes")
 
     useEffect(() => {
         const fetchProductos = async () => {
             try {
-                const response = await fetch(URL,{
+                const response = await fetch(URL_PRUEBA,{
                     method: 'GET', // o POST, PUT, etc.
                     headers: {'Content-Type': 'application/json',
                         'ngrok-skip-browser-warning': 'true' // Este es el pase VIP para saltar la advertencia
@@ -26,6 +28,24 @@ const ProductList = () => {
         fetchProductos();
     }, []);
 
+    const handleOrdenChange = (e) => {
+        setOrden(e.target.value)
+    }
+
+    const productosOrdenados = [...productos].sort((a, b) => {
+        // Convertimos a texto por seguridad y limpiamos cualquier símbolo (como S/ o $)
+        // dejando solo números y puntos decimales, luego lo pasamos a Number.
+        const precioA = Number(String(a.precio).replace(/[^0-9.-]+/g, ""));
+        const precioB = Number(String(b.precio).replace(/[^0-9.-]+/g, ""));
+
+        if (orden === "Precio: Menor a Mayor"){
+            return precioA - precioB;
+        } 
+        if (orden === "Precio: Mayor a Menor"){
+            return precioB - precioA;
+        }
+        return 0; // Se mantiene igual para "Relevantes"
+    });
     return (
         // Contenedor principal: columna en móvil, fila (flex-row) en pantallas grandes (lg)
         <section className="flex flex-col lg:flex-row gap-6 p-4 w-full font-sans">
@@ -81,10 +101,10 @@ const ProductList = () => {
                     <div className="flex justify-start sm:justify-end w-full sm:w-auto mt-4 sm:mt-0">
                         <label className="flex items-center text-sm w-full sm:w-auto">
                             <span className="mr-2 whitespace-nowrap">Ordenar por:</span>
-                            <select className="p-2 border border-gray-200 w-full sm:w-auto outline-none focus:border-gray-400 bg-white cursor-pointer">
+                            <select onChange={handleOrdenChange} value={orden} className="p-2 border border-gray-200 w-full sm:w-auto outline-none focus:border-gray-400 bg-white cursor-pointer">
                                 <option>Relevantes</option>
-                                <option>Precio: Menor a mayor</option>
-                                <option>Precio: Mayor a menor</option>
+                                <option>Precio: Menor a Mayor</option>
+                                <option>Precio: Mayor a Menor</option>
                             </select>
                         </label>
                     </div>
@@ -100,7 +120,7 @@ const ProductList = () => {
                     {error ? (
                         <p className="text-red-500 col-span-full">{error}</p>
                     ) : (
-                        productos.map((producto) => {
+                        productosOrdenados.map((producto) => {
                             return (
                                 <div 
                                     className="text-center bg-white overflow-hidden transition-all duration-200 hover:shadow-md p-2 sm:p-3 group cursor-pointer" 
@@ -118,6 +138,9 @@ const ProductList = () => {
                                     <h3 className="text-[11px] sm:text-xs md:text-sm font-medium text-left truncate text-gray-800">
                                         {producto.nombre}
                                     </h3>
+                                    <h4 className="text-[11px] sm:text-xs md:text-sm font-medium text-left truncate text-gray-800">
+                                        {producto.descripcion}
+                                    </h4>
                                     <p className="text-xs sm:text-sm md:text-base font-semibold text-[#9893fb] text-left mt-1">
                                         {producto.precio}
                                     </p>
