@@ -17,7 +17,7 @@ const Hero = () => {
         </h1>
         
         {/* Le agregué 'cursor-pointer' y un 'hover' sutil usando el morado de tu marca */}
-        <p className="text-[14px] sm:text-[16px] md:text-[14px] text-[#333] uppercase border-b border-[#333] pb-[2px] mt-[15px] inline-block cursor-pointer hover:text-[#9843fb] hover:border-[#9843fb] transition-colors">
+        <p className="text-[14px] sm:text-[16px] md:text-[14px] text-[#333] uppercase border-b border-[#333] pb-0.5 mt-3.75 inline-block cursor-pointer hover:text-[#9843fb] hover:border-[#9843fb] transition-colors">
           COMPRA AHORA
         </p>
       </div>

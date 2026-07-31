@@ -14,7 +14,7 @@ const Search = ({ onSearch }) => {
       <input 
         type="text" 
         placeholder="Buscar" 
-        className="w-full max-w-[400px] py-2.5 px-4 text-base border border-black/50 outline-none transition-colors duration-300 ease-in-out focus:border-black placeholder:text-[#aaa] placeholder:italic bg-white rounded-sm"
+        className="w-full max-w-100 py-2.5 px-4 text-base border border-black/50 outline-none transition-colors duration-300 ease-in-out focus:border-black placeholder:text-[#aaa] placeholder:italic bg-white rounded-sm"
         value={buscarTermino}
         onChange={handleBuscarChange} 
       />

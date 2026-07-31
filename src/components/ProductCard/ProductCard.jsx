@@ -27,7 +27,7 @@ const ProductCard = ({ producto }) => {
             <h3 className="text-[11px] sm:text-xs md:text-sm font-medium text-left truncate text-gray-800">
                 {producto.nombre}
             </h3>
-            <h4 className="text-[11px] sm:text-xs md:text-sm font-medium text-left truncate text-gray-800 text-gray-500">
+            <h4 className="text-[11px] sm:text-xs md:text-sm font-medium text-left truncate  text-gray-500">
                 {producto.descripcion}
             </h4>
             <p className="text-xs sm:text-sm md:text-base font-semibold text-[#9893fb] text-left mt-1">

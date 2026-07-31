@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import FilterSidebar from '../FilterSideBar/FilterSidebar';
+import FilterSidebar from '../FilterSideBar/FilterSideBar';
 import SortHeader from '../SortHeader/SortHeader';
 import ProductCard from '../ProductCard/ProductCard';
 
