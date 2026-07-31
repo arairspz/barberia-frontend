@@ -4,8 +4,8 @@ import SortHeader from '../SortHeader/SortHeader';
 import ProductCard from '../ProductCard/ProductCard';
 
 const ProductList = ({buscarTermino}) => {
-    const URL_PRUEBA = 'http://localhost:4000/productos';
-    const URL_PRODUCCION = ''
+    
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000/productos';
     
     const [productos, setProductos] = useState([]);
     const [error, setError] = useState(null);   
@@ -15,7 +15,7 @@ const ProductList = ({buscarTermino}) => {
     useEffect(() => {
         const fetchProductos = async () => {
             try {
-                const response = await fetch(URL_PRUEBA, {
+                const response = await fetch(`${API_URL}/productos`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

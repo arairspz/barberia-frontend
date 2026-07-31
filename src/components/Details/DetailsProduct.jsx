@@ -22,9 +22,10 @@ const DetailsProduct = () => {
   }
 
   useEffect(() => {
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
     const fetchProducto = async () => {
       try {
-        const response = await fetch(`http://localhost:${port}/productos/${id}`, {
+        const response = await fetch(`${API_URL}/productos/${id}`, {
             headers: { 'ngrok-skip-browser-warning': 'true' }
         });
         

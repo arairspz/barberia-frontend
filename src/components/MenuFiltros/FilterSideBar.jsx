@@ -6,7 +6,8 @@ const FilterSidebar = ({ filtros, toggleFiltros, setFiltros }) => {
 
     // 1. Fetch de la estructura completa al cargar la página
     useEffect(() => {
-        fetch('http://localhost:4000/estructura', {
+        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+        fetch(`${API_URL}/estructura`, {
             headers: { 'ngrok-skip-browser-warning': 'true' }
         })
         .then(res => res.json())
