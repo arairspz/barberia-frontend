@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import FilterSidebar from '../FilterSideBar/FilterSideBar';
+import FilterSideBar from '../FilterSideBar/FilterSideBar';
 import SortHeader from '../SortHeader/SortHeader';
 import ProductCard from '../ProductCard/ProductCard';
 
@@ -86,7 +86,7 @@ const ProductList = ({buscarTermino}) => {
     return (
         <section className="flex flex-col lg:flex-row gap-6 p-4 w-full font-sans">
             {/* 🚨 Pasamos setFiltros también para que el Sidebar maneje la exclusividad */}
-            <FilterSidebar 
+            <FilterSideBar 
                 filtros={filtros} 
                 toggleFiltros={toggleFiltros} 
                 setFiltros={setFiltros}
