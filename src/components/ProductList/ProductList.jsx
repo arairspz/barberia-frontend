@@ -1,24 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import FilterSidebar from '../FilterSideBar/FilterSidebar';
+import SortHeader from '../SortHeader/SortHeader';
+import ProductCard from '../ProductCard/ProductCard';
 
-const ProductList = () => {
-    const URL_PRODUCCION = "https://voicing-bobtail-bankbook.ngrok-free.dev/productos"
-    const URL_PRUEBA = 'http://localhost:4000/productos'
+const ProductList = ({buscarTermino}) => {
+    const URL_PRUEBA = 'http://localhost:4000/productos';
+    const URL_PRODUCCION = ''
+    
     const [productos, setProductos] = useState([]);
     const [error, setError] = useState(null);   
-    const [orden, setOrden] = useState("Relevantes")
+    const [orden, setOrden] = useState("Relevantes");
+    const [filtros, setFiltros] = useState({ categorias: [], tipos: [] });
 
     useEffect(() => {
         const fetchProductos = async () => {
             try {
-                const response = await fetch(URL_PRUEBA,{
-                    method: 'GET', // o POST, PUT, etc.
-                    headers: {'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true' // Este es el pase VIP para saltar la advertencia
+                const response = await fetch(URL_PRUEBA, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
                     }
                 });
-                if (!response.ok) {
-                    throw new Error("Error al cargar los productos");
-                }
+                if (!response.ok) throw new Error("Error al cargar los productos");
+                
                 const data = await response.json();
                 setProductos(data);
             } catch (err) {
@@ -28,130 +33,84 @@ const ProductList = () => {
         fetchProductos();
     }, []);
 
-    const handleOrdenChange = (e) => {
-        setOrden(e.target.value)
+    // Esta función sigue sirviendo para Categorías (selección múltiple)
+    const toggleFiltros = (tipoFiltro, valor) => {
+        setFiltros((prev) => ({
+            ...prev,
+            [tipoFiltro]: prev[tipoFiltro].includes(valor)
+            ? prev[tipoFiltro].filter((item) => item !== valor)
+            : [...prev[tipoFiltro], valor],
+        }));
+    };
+
+
+    const normalizarTexto = (texto) => {
+        return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
     }
 
-    const productosOrdenados = [...productos].sort((a, b) => {
-        // Convertimos a texto por seguridad y limpiamos cualquier símbolo (como S/ o $)
-        // dejando solo números y puntos decimales, luego lo pasamos a Number.
+    // 🚨 Filtramos verificando tanto la categoría como el tipo
+    const productosFiltrados = productos.filter((producto) => {
+        // Asumiendo que tus productos tienen propiedades 'categoria' y 'tipo'
+        const matchCategoria = filtros.categorias.length === 0 || filtros.categorias.includes(producto.categoria);
+        const matchTipo = filtros.tipos.length === 0 || filtros.tipos.includes(producto.tipo);
+        
+        const matchBuscar = !buscarTermino || normalizarTexto(producto.nombre).includes(normalizarTexto(buscarTermino)) || 
+        normalizarTexto(producto.descripcion).includes(normalizarTexto(buscarTermino));
+
+        return matchCategoria && matchTipo && matchBuscar;
+    });
+
+    const handleOrdenChange = (e) => {
+        setOrden(e.target.value);
+    };
+
+    const productosOrdenados = [...productosFiltrados].sort((a, b) => {
+        if (orden === "Últimos modelos") {
+            const fechaA = new Date(a.fechaCreacion || 0);
+            const fechaB = new Date(b.fechaCreacion || 0);
+            return fechaB - fechaA;
+        }
+
         const precioA = Number(String(a.precio).replace(/[^0-9.-]+/g, ""));
         const precioB = Number(String(b.precio).replace(/[^0-9.-]+/g, ""));
 
-        if (orden === "Precio: Menor a Mayor"){
-            return precioA - precioB;
-        } 
-        if (orden === "Precio: Mayor a Menor"){
-            return precioB - precioA;
-        }
-        return 0; // Se mantiene igual para "Relevantes"
+        if (orden === "Precio: Menor a Mayor") return precioA - precioB;
+        if (orden === "Precio: Mayor a Menor") return precioB - precioA;
+        
+        return 0;
     });
+
     return (
-        // Contenedor principal: columna en móvil, fila (flex-row) en pantallas grandes (lg)
         <section className="flex flex-col lg:flex-row gap-6 p-4 w-full font-sans">
-            
-            {/* Sidebar de Filtros */}
-            <aside className="w-full lg:w-1/4 xl:w-1/5">
-                <h2 className="text-lg font-bold mb-4">Filtros</h2>
-                
-                <div className="flex flex-col sm:flex-row lg:flex-col gap-4 justify-between">
-                    {/* Categorías */}
-                    <div className="flex flex-col p-4 border border-gray-200 w-full">
-                        <h3 className="mb-4 text-base font-bold">Categorías</h3>
-                        <label className="inline-flex items-center mb-3 cursor-pointer">
-                            <input type="checkbox" className="w-4 h-4 shrink-0 cursor-pointer" />
-                            <span className="text-sm ml-2">Hombres</span>
-                        </label>
-                        <label className="inline-flex items-center mb-3 cursor-pointer">
-                            <input type="checkbox" className="w-4 h-4 shrink-0 cursor-pointer" />
-                            <span className="text-sm ml-2">Mujeres</span>
-                        </label>
-                        <label className="inline-flex items-center mb-2 cursor-pointer">
-                            <input type="checkbox" className="w-4 h-4 shrink-0 cursor-pointer" />
-                            <span className="text-sm ml-2">Niños</span>
-                        </label>
-                    </div>
+            {/* 🚨 Pasamos setFiltros también para que el Sidebar maneje la exclusividad */}
+            <FilterSidebar 
+                filtros={filtros} 
+                toggleFiltros={toggleFiltros} 
+                setFiltros={setFiltros}
+            />
 
-                    {/* Tipos */}
-                    <div className="flex flex-col p-4 border border-gray-200 w-full">
-                        <h3 className="mb-4 text-base font-bold">Tipos</h3>
-                        <label className="inline-flex items-center mb-3 cursor-pointer">
-                            <input type="checkbox" className="w-4 h-4 shrink-0 cursor-pointer" />
-                            <span className="text-sm ml-2">Prendas</span>
-                        </label>
-                        <label className="inline-flex items-center mb-3 cursor-pointer">
-                            <input type="checkbox" className="w-4 h-4 shrink-0 cursor-pointer" />
-                            <span className="text-sm ml-2">Ropa interior</span>
-                        </label>
-                        <label className="inline-flex items-center mb-2 cursor-pointer">
-                            <input type="checkbox" className="w-4 h-4 shrink-0 cursor-pointer" />
-                            <span className="text-sm ml-2">Calzados</span>
-                        </label>
-                    </div>
-                </div>
-            </aside>
-
-            {/* Contenido Principal */}
             <main className="flex-1">
-                
-                {/* Cabecera de Opciones */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                    <h2 className="text-xl font-bold">Todas las colecciones</h2>
-                    
-                    <div className="flex justify-start sm:justify-end w-full sm:w-auto mt-4 sm:mt-0">
-                        <label className="flex items-center text-sm w-full sm:w-auto">
-                            <span className="mr-2 whitespace-nowrap">Ordenar por:</span>
-                            <select onChange={handleOrdenChange} value={orden} className="p-2 border border-gray-200 w-full sm:w-auto outline-none focus:border-gray-400 bg-white cursor-pointer">
-                                <option>Relevantes</option>
-                                <option>Precio: Menor a Mayor</option>
-                                <option>Precio: Mayor a Menor</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
+                <SortHeader orden={orden} handleOrdenChange={handleOrdenChange} />
 
-                {/* 
-                  Grid de Productos: 
-                  - grid-cols-2 asegura las 2 columnas exactas en celular (estilo Nike)
-                  - md:grid-cols-3 para tablets
-                  - lg:grid-cols-4 para escritorio 
-                */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                     {error ? (
                         <p className="text-red-500 col-span-full">{error}</p>
+                    ) : productosOrdenados.length > 0 ? (
+                        productosOrdenados.map((producto) => (
+                            <ProductCard key={producto.id} producto={producto} />
+                        ))
                     ) : (
-                        productosOrdenados.map((producto) => {
-                            return (
-                                <div 
-                                    className="text-center bg-white overflow-hidden transition-all duration-200 hover:shadow-md p-2 sm:p-3 group cursor-pointer" 
-                                    key={producto.id}
-                                >
-                                    {/* Contenedor de la imagen */}
-                                    <div className="overflow-hidden mb-3 bg-gray-50 flex items-center justify-center">
-                                        <img 
-                                            src={producto.imagen}
-                                            alt={producto.image}
-                                            className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-                                        />
-                                    </div>
-                                    
-                                    <h3 className="text-[11px] sm:text-xs md:text-sm font-medium text-left truncate text-gray-800">
-                                        {producto.nombre}
-                                    </h3>
-                                    <h4 className="text-[11px] sm:text-xs md:text-sm font-medium text-left truncate text-gray-800">
-                                        {producto.descripcion}
-                                    </h4>
-                                    <p className="text-xs sm:text-sm md:text-base font-semibold text-[#9893fb] text-left mt-1">
-                                        {producto.precio}
-                                    </p>
-                                </div>
-                            );
-                        })
+                        <p className="no-results col-span-full text-center text-gray-500 py-8">
+                            No hay productos que coincidan con los filtros seleccionados
+                        </p>
                     )}
                 </div>
             </main>
         </section>
     );
-}
+};
 
 export default ProductList;
